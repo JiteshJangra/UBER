@@ -46,26 +46,3 @@ Example:
   }
   ```
 
-#### Validation Errors
-- **Status Code:** `400 Bad Request`
-- **Response Body:**
-  ```json
-  {
-    "errors": [
-      {
-        "msg": "Error message here",
-        "param": "field_name",
-        "location": "body"
-      }
-    ]
-  }
-  ```
-
-#### Server Errors
-- **Status Code:** `500 Internal Server Error`
-- **Response Body:**
-  ```json
-  {
-    "message": "Internal server error"
-  }
-  ```
