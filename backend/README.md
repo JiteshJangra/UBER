@@ -46,3 +46,72 @@ Example:
   }
   ```
 
+
+  ## Endpoint: `/users/login`
+
+### Description
+This endpoint is used to log in an existing user. It requires the user's email and password.
+
+### Method
+`POST`
+
+### Request Body
+The request body should be a JSON object containing the following fields:
+- `email` (string, required): The email address of the user. Must be a valid email format.
+- `password` (string, required): The password for the user. Must be at least 6 characters long.
+
+Example:
+```json
+{
+  "email": "john.doe@example.com",
+  "password": "password123"
+}
+```
+
+### Responses
+
+#### Success
+- **Status Code:** `200 OK`
+- **Response Body:**
+  ```json
+  {
+    "token": "jwt_token_here",
+    "user": {
+      "_id": "user_id_here",
+      "fullName": {
+        "firstName": "John",
+        "lastName": "Doe"
+      },
+      "email": "john.doe@example.com"
+    }
+  }
+  ```
+
+#### Failure
+- **Status Code:** `400 Bad Request`
+- **Response Body:**
+  ```json
+  {
+    "errors": [
+      {
+        "msg": "Invalid Email",
+        "param": "email",
+        "location": "body"
+      },
+      {
+        "msg": "password must be at least 6 characters long",
+        "param": "password",
+        "location": "body"
+      }
+    ]
+  }
+  ```
+
+- **Status Code:** `401 Unauthorized`
+- **Response Body:**
+  ```json
+  {
+    "message": "Invalid email/password"
+  }
+  ```
+
