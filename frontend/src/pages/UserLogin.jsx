@@ -16,10 +16,10 @@ const UserLogin = () => {
     setPassword("");
   };
   return (
-    <div className="p-7 h-screen flex flex-col justify-between">
+    <div className="p-7 pt-11 h-screen flex flex-col justify-between">
       <div>
         <img
-          className=" w-16 mb-5"
+          className=" w-16 mb-14 ml-2"
           src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png"
         />
         <form onSubmit={(e) => submitHandler(e)}>

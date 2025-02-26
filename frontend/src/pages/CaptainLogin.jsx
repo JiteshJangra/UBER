@@ -19,7 +19,7 @@ const CaptainLogin = () => {
     <div className="p-7 h-screen flex flex-col justify-between">
       <div>
         <img
-          className=" w-20 mb-2"
+          className=" w-20 mb-4"
           src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSVCO4w_adxK32rCXFeKq3_NbLcR9b_js14w&s"
         />
         <form onSubmit={(e) => submitHandler(e)}>
