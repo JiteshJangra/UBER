@@ -2,11 +2,11 @@ import axios from "axios";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-const UserLogout = () => {
+const CaptainLogout = () => {
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
   axios
-    .get(`${import.meta.env.VITE_API_URL}/users/logout`, {
+    .get(`${import.meta.env.VITE_API_URL}/captain/logout`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -20,4 +20,4 @@ const UserLogout = () => {
   return <div>Logout</div>;
 };
 
-export default UserLogout;
+export default CaptainLogout;
