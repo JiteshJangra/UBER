@@ -7,6 +7,7 @@ const cookieParser = require("cookie-parser");
 const express = require('express');
 const userRoutes = require('./routes/user.routes');
 const captainRoutes = require("./routes/captain.routes");
+const mapRoutes = require('./routes/maps.routes')
 const app = express();
 
 
@@ -17,9 +18,7 @@ app.use(cookieParser());
 
 app.use('/users', userRoutes);
 app.use("/captain", captainRoutes);
-app.get('/', (req, res) => {
-    res.send("Hellow");
-})
+app.use('/maps', mapRoutes);
 
 
 
