@@ -14,7 +14,7 @@ const WaitingForDriver = (props) => {
       <div className="flex items-center justify-between">
         <img
           className="h-12"
-          src="https://swyft.pl/wp-content/uploads/2023/05/how-many-people-can-a-uberx-take.jpg"
+          src={props.vehicleImage}
           alt=""
         />
         <div className='text-right'>

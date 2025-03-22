@@ -1,4 +1,4 @@
-import React, { createContext, useState } from "react";
+import { createContext, useState, useContext } from "react";
 
 export const CaptainDataContext = createContext();
 
@@ -21,13 +21,11 @@ const CaptainContext = ({ children }) => {
     updateCaptain,
   };
 
-  //const user = 'Jitesh'
   return (
-    <div>
-      <CaptainDataContext.Provider value={value}>
-        {children}
-      </CaptainDataContext.Provider>
-    </div>
+    <CaptainDataContext.Provider value={value}>
+      {children}
+    </CaptainDataContext.Provider>
   );
 };
+
 export default CaptainContext;

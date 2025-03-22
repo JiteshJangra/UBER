@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import axios from "axios";
 import "remixicon/fonts/remixicon.css";
 import LocationSearchPanel from "../components/LocationSearchPanel";
 import VehiclePanel from "../components/VehiclePanel";
@@ -8,14 +9,31 @@ import ConfirmedRide from "../components/ConfirmedRide";
 import LookingForDriver from "../components/LookingForDriver";
 import WaitingForDriver from "../components/WaitingForDriver";
 
+import motoImage from "../assets/moto.webp";
+import carImage from "../assets/car.jpg";
+import autoImage from "../assets/auto.webp";
+import { UserDataContext } from "../context/UserContext";
+
+
 const Home = () => {
   const [pickUp, setPickUp] = useState("");
   const [destination, setDestination] = useState("");
+  const [src, setSrc] = useState("");
+  const [dest, setDest] = useState("");
   const [panelOpen, setPanelOpen] = useState(false);
   const [vehiclePanel, setVehiclePanel] = useState(false);
   const [confirmRidePanel, setConfirmRidePanel] = useState(false);
   const [vehicleFound, setVehicleFound] = useState(false);
   const [waitingForDriver, setWaitingForDriver] = useState(false);
+
+  const [pickUpSuggestions, setPickUpSuggestions] = useState([]);
+  const [destinationSuggestions, setDestinationSuggestions] = useState([]);
+  const [activeField, setActiveField] = useState(null);
+  const [typingTimeout, setTypingTimeout] = useState(null);
+  const [vehicleType, setVehicleType] = useState(null);
+  const [vehicleImage, setVehicleImage] = useState(null);
+
+  const [fare, setFare] = useState({});
 
   const panelRef = useRef(null);
   const vehiclePanelRef = useRef(null);
@@ -23,7 +41,75 @@ const Home = () => {
   const vehicleFoundRef = useRef(null);
   const waitingForDriverRef = useRef(null);
 
-  const submithandle = (e) => {
+  useEffect(() => {
+    if (vehicleType == "moto")
+      setVehicleImage(motoImage);
+    else if (vehicleType == "car")
+      setVehicleImage(carImage);
+    else if (vehicleType == "auto")
+      setVehicleImage(autoImage);
+  }, [vehicleType]);
+
+  
+
+  const handlePickupChange = async (e) => {
+    //setPickUp(p => p=e.target.value);
+    const value = e.target.value;
+    setPickUp(value);
+
+    // console.log(pickUp)
+    // console.log(value.length)
+
+    if (value.length == 0) setPickUpSuggestions([]);
+    if (typingTimeout) {
+      clearTimeout(typingTimeout);
+    }
+    const timeout = setTimeout(async () => {
+      try {
+        console.log(value);
+        const response = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/maps/get-suggestions`,
+          {
+            params: { input: value },
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+
+        setPickUpSuggestions(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    }, 300);
+    setTypingTimeout(timeout);
+  };
+
+  const handleDestinationChange = async (e) => {
+    const value = e.target.value;
+    setDestination(value);
+
+    if (value.length == 0) setDestinationSuggestions([]);
+
+    if (typingTimeout) clearTimeout(typingTimeout);
+    const timeout = setTimeout(async () => {
+      try {
+        console.log(value);
+        const response = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/maps/get-suggestions`,
+          {
+            params: { input: value },
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        setDestinationSuggestions(response.data);
+      } catch (error) {}
+    }, 300);
+    setTypingTimeout(timeout);
+  };
+  const submitHandler = (e) => {
     e.preventDefault();
   };
 
@@ -41,10 +127,10 @@ const Home = () => {
           duration: 0.5,
 
           onStart: () => {
-            panelRef.current.style.overflowY = "hidden"; 
+            panelRef.current.style.overflowY = "hidden";
           },
           onComplete: () => {
-            panelRef.current.style.overflowY = "auto"; 
+            panelRef.current.style.overflowY = "auto";
           },
         });
       } else {
@@ -92,7 +178,6 @@ const Home = () => {
     [confirmRidePanel]
   );
 
-
   useGSAP(
     function () {
       if (vehicleFound)
@@ -121,8 +206,24 @@ const Home = () => {
     [waitingForDriver]
   );
 
+  function findTrip() {
+    setVehiclePanel(true);
+    setPanelOpen(false);
+  }
 
+  async function createRide() {
+    const response = await axios.post(
+      `${import.meta.env.VITE_BASE_URL}/rides/create`,
+      {
+        pickup: pickUp,
+        destination,
+        vehicleType,
+      },
+      { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+    );
 
+    console.log(response);
+  }
   return (
     <div className="h-screen relative overflow-hidden">
       <img
@@ -149,7 +250,7 @@ const Home = () => {
       </div>
 
       <div className=" flex flex-col justify-end h-[70%] absolute bottom-0 w-full">
-        <div className=" p-6 bg-white relative">
+        <div className=" p-6 pb-3 bg-white relative">
           <h5
             onClick={() => setPanelOpen(false)}
             className="absolute right-6 top-6 text-2xl"
@@ -162,20 +263,32 @@ const Home = () => {
               submitHandler(e);
             }}
           >
-            <div className="line absolute h-16 w-1 top-[63%] ml-5 -translate-y-1/2 bg-gray-700 rounded-full"></div>
+            <div className="line absolute h-16 w-1.5 top-[70%] ml-2 -translate-y-1/2 bg-gradient-to-b from-gray-900 to-gray-100 rounded-full"></div>
+
             <input
-              onClick={() => setPanelOpen(true)}
+              onClick={() => {
+                setPanelOpen(true);
+                setActiveField("pickup");
+              }}
               value={pickUp}
-              onChange={(e) => setPickUp(e.target.value)}
-              className="bg-[#eeee] px-12 py-2 text-base rounded-lg w-full mt-5"
+              onChange={(e) => {
+                handlePickupChange(e);
+              }}
+              className="bg-[#eeee] px-3 py-2 text-base rounded-lg w-[95%] mt-5 ml-6"
               type="text"
               placeholder="Add a pickup location"
             ></input>
+
             <input
-              onClick={() => setPanelOpen(true)}
+              onClick={() => {
+                setPanelOpen(true);
+                setActiveField("destination");
+              }}
               value={destination}
-              onChange={(e) => setDestination(e.target.value)}
-              className="bg-[#eeee] px-12 py-2 text-base rounded-lg w-full mt-3"
+              onChange={(e) => {
+                handleDestinationChange(e);
+              }}
+              className="bg-[#eeee] px-3 py-2 text-base rounded-lg w-[95%] mt-3 ml-6"
               type="text"
               placeholder="Enter your destination"
             ></input>
@@ -186,6 +299,14 @@ const Home = () => {
           <LocationSearchPanel
             setPanelOpen={setPanelOpen}
             setVehiclePanel={setVehiclePanel}
+            setPickUp={setPickUp}
+            setDestination={setDestination}
+            activeField={activeField}
+            pickUpSuggestions={pickUpSuggestions}
+            destinationSuggestions={destinationSuggestions}
+            pickUp={pickUp}
+            destination={destination}
+            setFare={setFare}
           />
         </div>
       </div>
@@ -195,8 +316,11 @@ const Home = () => {
         className="fixed w-full z-10 bottom-0 translate-y-full p-3 py-10 px-3 pt-14 bg-white"
       >
         <VehiclePanel
+          setVehicleType={setVehicleType}
+          vehicleType = {vehicleType}
           setConfirmRidePanel={setConfirmRidePanel}
           setVehiclePanel={setVehiclePanel}
+          fare={fare}
         />
       </div>
 
@@ -205,8 +329,14 @@ const Home = () => {
         className="fixed w-full z-10 bottom-0 translate-y-full p-3 py-10 px-3 pt-14 bg-white"
       >
         <ConfirmedRide
+          createRide={createRide}
+          pickUp={pickUp}
+          destination={destination}
+          fare={fare}
+          vehicleType={vehicleType}
           setConfirmRidePanel={setConfirmRidePanel}
           setVehicleFound={setVehicleFound}
+          vehicleImage={vehicleImage}
         />
       </div>
 
@@ -214,14 +344,24 @@ const Home = () => {
         ref={vehicleFoundRef}
         className="fixed w-full z-10 bottom-0 translate-y-full p-3 py-10 px-3 pt-14 bg-white"
       >
-        <LookingForDriver setVehicleFound={setVehicleFound} />
+        <LookingForDriver
+          pickUp={pickUp}
+          destination={destination}
+          fare={fare}
+          vehicleType={vehicleType}
+          vehicleImage={vehicleImage}
+          setVehicleFound={setVehicleFound}
+        />
       </div>
 
       <div
         ref={waitingForDriverRef}
         className="fixed w-full z-10 bottom-0  p-3 py-10 px-3 pt-14 bg-white"
       >
-        <WaitingForDriver setWaitingForDriver={setWaitingForDriver} />
+        <WaitingForDriver
+          vehicleImage={vehicleImage}
+          setWaitingForDriver={setWaitingForDriver}
+        />
       </div>
     </div>
   );

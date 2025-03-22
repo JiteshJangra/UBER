@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from "react";
 
 const VehiclePanel = (props) => {
   return (
@@ -14,7 +14,10 @@ const VehiclePanel = (props) => {
       <h3 className="text-2xl font-semibold mb-5">Choose a vehicle</h3>
 
       <div
-        onClick={() => props.setConfirmRidePanel(true)}
+        onClick={() => {
+          props.setVehicleType("car");
+          props.setConfirmRidePanel(true);
+        }}
         className="p-1 pr-3 w-full border-2 mb-2 active:border-black  rounded-xl flex items-center justify-between"
       >
         <div className="w-1/4 flex justify-center">
@@ -36,11 +39,20 @@ const VehiclePanel = (props) => {
             Affordable, compact rides
           </p>
         </div>
-        <h2 className="text-lg font-semibold">₹192.3</h2>
+        <h2 className="text-lg font-semibold">
+          {!props.fare || !props.fare.car ? (
+            <div className="animate-spin h-5 w-5 border-2 border-gray-500 border-t-black rounded-full"></div>
+          ) : (
+            `₹${props.fare.car}`
+          )}
+        </h2>
       </div>
 
       <div
-        onClick={() => props.setConfirmRidePanel(true)}
+        onClick={() => {
+          props.setVehicleType("moto");
+          props.setConfirmRidePanel(true);
+        }}
         className="p-1 pr-3 w-full border-2 mb-2 active:border-black  rounded-xl flex items-center justify-between"
       >
         <div className="w-1/4 flex justify-center">
@@ -62,12 +74,21 @@ const VehiclePanel = (props) => {
             Affordable, motorcycle rides
           </p>
         </div>
-        <h2 className="text-lg font-semibold">₹65.2</h2>
+        <h2 className="text-lg font-semibold">
+          {!props.fare || !props.fare.moto ? (
+            <div className="animate-spin h-5 w-5 border-2 border-gray-500 border-t-black rounded-full"></div>
+          ) : (
+            `₹${props.fare.moto}`
+          )}
+        </h2>
       </div>
 
       <div
-        onClick={() => props.setConfirmRidePanel(true)}
-         className="p-1 pr-3 w-full border-2 mb-2 active:border-black  rounded-xl flex items-center justify-between"
+        onClick={() => {
+          props.setVehicleType("auto");
+          props.setConfirmRidePanel(true);
+        }}
+        className="p-1 pr-3 w-full border-2 mb-2 active:border-black  rounded-xl flex items-center justify-between"
       >
         <div className="w-1/4 flex justify-center">
           <img
@@ -88,10 +109,16 @@ const VehiclePanel = (props) => {
             Affordable, auto rides
           </p>
         </div>
-        <h2 className="text-lg font-semibold">₹115.2</h2>
+        <h2 className="text-lg font-semibold">
+          {!props.fare || !props.fare.auto ? (
+            <div className="animate-spin h-5 w-5 border-2 border-gray-500 border-t-black rounded-full"></div>
+          ) : (
+            `₹${props.fare.auto}`
+          )}
+        </h2>
       </div>
     </div>
   );
-}
+};
 
-export default VehiclePanel
+export default VehiclePanel;

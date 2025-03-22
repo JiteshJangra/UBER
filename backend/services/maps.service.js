@@ -42,8 +42,8 @@ const getDistanceTime = async (origin, destination) => {
     const originCoords = await getAddressCoordinate(origin); // ✅ Use the function correctly
     const destinationCoords = await getAddressCoordinate(destination); // ✅ Use the function correctly
 
-    console.log("Origin:", originCoords);
-    console.log("Destination:", destinationCoords);
+    //console.log("Origin:", originCoords);
+    //console.log("Destination:", destinationCoords);
 
     // Construct API URL
     const apiUrl = `https://router.hereapi.com/v8/routes?transportMode=car&origin=${originCoords.latitude},${originCoords.longitude}&destination=${destinationCoords.latitude},${destinationCoords.longitude}&return=summary&apikey=${API_KEY}`;
@@ -59,13 +59,34 @@ const getDistanceTime = async (origin, destination) => {
     console.log("Route Summary:", route);
 
     return {
-      distance: `${(route.length / 1000).toFixed(2)} km`, // Convert meters to km
-      duration: `${Math.round(route.duration / 60)} min`, // Convert seconds to minutes
+      distance: (route.length / 1000).toFixed(2), // Convert meters to km
+      duration: Math.round(route.duration / 60), // Convert seconds to minutes
     };
   } catch (error) {
     throw new Error(`Error fetching route details: ${error.message}`);
   }
 };
 
+const getAutoCompleteSuggestions = async (input) => {
+  if (!input) throw new Error("query is required");
+  const apiUrl = `https://autocomplete.search.hereapi.com/v1/autocomplete?q=${encodeURIComponent(
+    input
+  )}&in=countryCode:IND&apiKey=${API_KEY}`;
+  try {
+    const response = await axios.get(apiUrl);
 
-module.exports = { getAddressCoordinate, getDistanceTime };
+    if (!response.data.items || response.data.items.length === 0) {
+      throw new Error("No suggestions found");
+    }
+    return response.data.items;
+  } catch (error) {
+    throw new Error(
+      `Error fetching autocomplete suggestions: ${error.message}`
+    );
+  }
+};
+module.exports = {
+  getAddressCoordinate,
+  getDistanceTime,
+  getAutoCompleteSuggestions,
+};

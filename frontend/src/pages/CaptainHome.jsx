@@ -1,10 +1,11 @@
-import React, { useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import CaptainDetails from "../components/CaptainDetails";
 import RidePopUp from "../components/RidePopUp";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import ConfirmRidePopup from "../components/ConfirmRidePopup";
+import { CaptainDataContext } from "../context/CaptainContext";
 
 const CaptainHome = () => {
   const [ridePopupPanel, setRidePopupPanel] = useState(true);
@@ -13,6 +14,7 @@ const CaptainHome = () => {
   const ridePopupPanelRef = useRef(null);
   const confirmRidePopupPanelRef = useRef(null);
 
+  const { captain} = useContext(CaptainDataContext);
   useGSAP(
     function () {
       if (ridePopupPanel)
@@ -51,7 +53,7 @@ const CaptainHome = () => {
         />
         <div className="mt-10 ml-1">
           <Link
-            to=""
+            to="/captain-logout"
             className="h-10 w-10 bg-white flex items-center justify-center rounded-full "
           >
             <i className="text-lg font-medium ri-logout-box-r-line" />
@@ -65,23 +67,7 @@ const CaptainHome = () => {
           alt=""
         />
       </div>
-      {/* <div className="h-1/2 p-4"> */}
-      {/* <div className="flex items-center justify-between">
-          <img
-            className="h-12"
-            src="https://swyft.pl/wp-content/uploads/2023/05/how-many-people-can-a-uberx-take.jpg"
-            alt=""
-          />
-           <div className="text-right">
-            <h2 className="text-lg font-medium">Sarthak</h2>
-            <h4 className="text-xl font-semibold -mt-1 -mb-1">HR 14 7HF7</h4>
-            <p className="text-sm text-gray-600">Swift Desire</p>
-          </div> 
-        </div> */}
 
-      {/* <button className="w-full mt-5 bg-green-600 text-white font-semibold p-2 rounded-lg">
-          Make payment
-        </button> */}
       <div className="h-2/5 p-6">
         <CaptainDetails />
       </div>

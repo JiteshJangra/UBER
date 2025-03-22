@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, UNSAFE_ErrorResponseImpl, useNavigate } from "react-router-dom";
 import { UserDataContext } from "../context/UserContext";
 import axios from "axios";
@@ -24,7 +24,9 @@ const UserLogin = () => {
     if (response.status === 200)
     {
       const data = response.data;
+      console.log( data.user)
       setUser(data.user);
+      console.log( "user",user)
       localStorage.setItem('token', data.token);
       navigate('/home');
     }

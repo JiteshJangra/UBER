@@ -11,7 +11,6 @@ const UserContext = ({ children }) => {
     },
   });
 
-  //const user = 'Jitesh'
   return (
     <div>
       <UserDataContext.Provider value={{ user, setUser }}>
