@@ -8,9 +8,11 @@ const express = require('express');
 const userRoutes = require('./routes/user.routes');
 const captainRoutes = require("./routes/captain.routes");
 const mapRoutes = require('./routes/maps.routes')
-const rideRoutes = require('./routes/ride.routes')
+const rideRoutes = require('./routes/ride.routes');
+const connectToDb = require('./db/db');
 const app = express();
 
+connectToDb();
 
 app.use(cors());
 app.use(express.json());

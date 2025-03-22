@@ -11,7 +11,7 @@ const CaptainProtectWrapper = ({ children }) => {
 
 
 
-  console.log( "captainProetect wrapper",captain )
+  //console.log( "captainProetect wrapper",captain )
   useEffect(() => { 
 
     if (!token) {

@@ -6,6 +6,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import ConfirmRidePopup from "../components/ConfirmRidePopup";
 import { CaptainDataContext } from "../context/CaptainContext";
+import { SocketContext } from "../context/SocketContext";
 
 const CaptainHome = () => {
   const [ridePopupPanel, setRidePopupPanel] = useState(true);
@@ -14,7 +15,14 @@ const CaptainHome = () => {
   const ridePopupPanelRef = useRef(null);
   const confirmRidePopupPanelRef = useRef(null);
 
-  const { captain} = useContext(CaptainDataContext);
+  const { captain } = useContext(CaptainDataContext);
+  const { sendMessage } = useContext(SocketContext);
+  useEffect(() => {
+    sendMessage('join', { userType:"captain",userId : captain._id , } )
+  
+   
+  }, [])
+  
   useGSAP(
     function () {
       if (ridePopupPanel)

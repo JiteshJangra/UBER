@@ -13,6 +13,7 @@ import motoImage from "../assets/moto.webp";
 import carImage from "../assets/car.jpg";
 import autoImage from "../assets/auto.webp";
 import { UserDataContext } from "../context/UserContext";
+import { SocketContext } from "../context/SocketContext";
 
 
 const Home = () => {
@@ -41,7 +42,13 @@ const Home = () => {
   const vehicleFoundRef = useRef(null);
   const waitingForDriverRef = useRef(null);
 
+
+  const { sendMessage, recieveMessage } = useContext(SocketContext);
+  const { user }  = useContext(UserDataContext)
+
   useEffect(() => {
+    sendMessage("join", { userType: "user", userId: user._id }, { message: "heelow" });
+
     if (vehicleType == "moto")
       setVehicleImage(motoImage);
     else if (vehicleType == "car")
