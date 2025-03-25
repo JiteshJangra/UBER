@@ -14,6 +14,8 @@ import carImage from "../assets/car.jpg";
 import autoImage from "../assets/auto.webp";
 import { UserDataContext } from "../context/UserContext";
 import { SocketContext } from "../context/SocketContext";
+import { useNavigate } from "react-router-dom";
+import LiveTracking from "../components/LiveTracking";
 
 const Home = () => {
   const [pickUp, setPickUp] = useState("");
@@ -41,15 +43,13 @@ const Home = () => {
   const vehicleFoundRef = useRef(null);
   const waitingForDriverRef = useRef(null);
 
+  const navigate = useNavigate();
+
   const { sendMessage, recieveMessage, socket } = useContext(SocketContext);
   const { user } = useContext(UserDataContext);
 
   useEffect(() => {
-    sendMessage(
-      "join",
-      { userType: "user", userId: user._id },
-      { message: "heelow" }
-    );
+    sendMessage("join", { userType: "user", userId: user._id });
 
     if (vehicleType == "moto") setVehicleImage(motoImage);
     else if (vehicleType == "car") setVehicleImage(carImage);
@@ -57,17 +57,19 @@ const Home = () => {
   }, [vehicleType]);
 
   socket.on("ride-confirmed", (ride) => {
-
+    console.log(ride);
     setRide(ride);
     setVehicleFound(false);
     setWaitingForDriver(true);
   });
 
+  socket.on("ride-started", (ride) => {
+    setWaitingForDriver(false);
+    navigate("/riding", { state: { ride } });
+  });
   const handlePickupChange = async (e) => {
-
     const value = e.target.value;
     setPickUp(value);
-
 
     if (value.length == 0) setPickUpSuggestions([]);
     if (typingTimeout) {
@@ -75,7 +77,6 @@ const Home = () => {
     }
     const timeout = setTimeout(async () => {
       try {
-       
         const response = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/maps/get-suggestions`,
           {
@@ -87,9 +88,7 @@ const Home = () => {
         );
 
         setPickUpSuggestions(response.data);
-      } catch (error) {
-       
-      }
+      } catch (error) {}
     }, 300);
     setTypingTimeout(timeout);
   };
@@ -103,7 +102,6 @@ const Home = () => {
     if (typingTimeout) clearTimeout(typingTimeout);
     const timeout = setTimeout(async () => {
       try {
-      
         const response = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/maps/get-suggestions`,
           {
@@ -230,8 +228,6 @@ const Home = () => {
       },
       { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
     );
-
-    
   }
   return (
     <div className="h-screen relative overflow-hidden">
@@ -251,11 +247,14 @@ const Home = () => {
         }}
         className="h-screen w-screen"
       >
-        <img
+        {/* <img
           className="h-full w-full object-cover"
           src="https://miro.medium.com/v2/resize:fit:1400/0*gwMx05pqII5hbfmX.gif"
           alt=""
-        />
+        /> */}
+        <div className="h-full w-full object-cover">
+          <LiveTracking />
+        </div>
       </div>
 
       <div className=" flex flex-col justify-end h-[70%] absolute bottom-0 w-full">

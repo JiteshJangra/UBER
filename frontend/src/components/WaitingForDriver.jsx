@@ -22,7 +22,7 @@ const WaitingForDriver = (props) => {
           <h4 className="text-xl font-semibold -mt-1 -mb-1">
             {props.ride?.captain.vehicle.plate}
           </h4>
-          <p className="text-sm text-gray-600">{props.ride?.otp}</p>
+          <p className="text-lg ">{props.ride?.otp}</p>
         </div>
       </div>
       <div className="flex gap-2 justify-between flex-col items-center">
