@@ -15,7 +15,6 @@ import autoImage from "../assets/auto.webp";
 import { UserDataContext } from "../context/UserContext";
 import { SocketContext } from "../context/SocketContext";
 
-
 const Home = () => {
   const [pickUp, setPickUp] = useState("");
   const [destination, setDestination] = useState("");
@@ -33,8 +32,8 @@ const Home = () => {
   const [typingTimeout, setTypingTimeout] = useState(null);
   const [vehicleType, setVehicleType] = useState(null);
   const [vehicleImage, setVehicleImage] = useState(null);
-
   const [fare, setFare] = useState({});
+  const [ride, setRide] = useState(null);
 
   const panelRef = useRef(null);
   const vehiclePanelRef = useRef(null);
@@ -42,30 +41,33 @@ const Home = () => {
   const vehicleFoundRef = useRef(null);
   const waitingForDriverRef = useRef(null);
 
-
-  const { sendMessage, recieveMessage } = useContext(SocketContext);
-  const { user }  = useContext(UserDataContext)
+  const { sendMessage, recieveMessage, socket } = useContext(SocketContext);
+  const { user } = useContext(UserDataContext);
 
   useEffect(() => {
-    sendMessage("join", { userType: "user", userId: user._id }, { message: "heelow" });
+    sendMessage(
+      "join",
+      { userType: "user", userId: user._id },
+      { message: "heelow" }
+    );
 
-    if (vehicleType == "moto")
-      setVehicleImage(motoImage);
-    else if (vehicleType == "car")
-      setVehicleImage(carImage);
-    else if (vehicleType == "auto")
-      setVehicleImage(autoImage);
+    if (vehicleType == "moto") setVehicleImage(motoImage);
+    else if (vehicleType == "car") setVehicleImage(carImage);
+    else if (vehicleType == "auto") setVehicleImage(autoImage);
   }, [vehicleType]);
 
-  
+  socket.on("ride-confirmed", (ride) => {
+
+    setRide(ride);
+    setVehicleFound(false);
+    setWaitingForDriver(true);
+  });
 
   const handlePickupChange = async (e) => {
-    //setPickUp(p => p=e.target.value);
+
     const value = e.target.value;
     setPickUp(value);
 
-    // console.log(pickUp)
-    // console.log(value.length)
 
     if (value.length == 0) setPickUpSuggestions([]);
     if (typingTimeout) {
@@ -73,7 +75,7 @@ const Home = () => {
     }
     const timeout = setTimeout(async () => {
       try {
-        console.log(value);
+       
         const response = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/maps/get-suggestions`,
           {
@@ -86,7 +88,7 @@ const Home = () => {
 
         setPickUpSuggestions(response.data);
       } catch (error) {
-        console.log(error);
+       
       }
     }, 300);
     setTypingTimeout(timeout);
@@ -101,7 +103,7 @@ const Home = () => {
     if (typingTimeout) clearTimeout(typingTimeout);
     const timeout = setTimeout(async () => {
       try {
-        console.log(value);
+      
         const response = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/maps/get-suggestions`,
           {
@@ -229,7 +231,7 @@ const Home = () => {
       { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
     );
 
-    console.log(response);
+    
   }
   return (
     <div className="h-screen relative overflow-hidden">
@@ -324,7 +326,7 @@ const Home = () => {
       >
         <VehiclePanel
           setVehicleType={setVehicleType}
-          vehicleType = {vehicleType}
+          vehicleType={vehicleType}
           setConfirmRidePanel={setConfirmRidePanel}
           setVehiclePanel={setVehiclePanel}
           fare={fare}
@@ -366,6 +368,7 @@ const Home = () => {
         className="fixed w-full z-10 bottom-0  p-3 py-10 px-3 pt-14 bg-white"
       >
         <WaitingForDriver
+          ride={ride}
           vehicleImage={vehicleImage}
           setWaitingForDriver={setWaitingForDriver}
         />

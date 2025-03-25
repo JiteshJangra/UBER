@@ -8,7 +8,7 @@ const LocationSearchPanel = (props) => {
   async function findTrip() {
     try {
 
-      console.log( src , dest)
+      
       const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/rides/get-fare`, {
         params: { pickup:src, destination:dest },
         headers: {
@@ -20,7 +20,7 @@ const LocationSearchPanel = (props) => {
       props.setFare(response.data);
     } catch (error) {
       
-      console.log("error", error)
+      // console.log("error", error)
     }
     
   }
@@ -30,7 +30,7 @@ const LocationSearchPanel = (props) => {
 
     // If both source and destination are selected, show vehicle panel
     if (src && dest) {
-      console.log(src, dest);
+      // console.log(src, dest);
       props.setVehiclePanel(true);
       props.setPanelOpen(false);
 

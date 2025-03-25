@@ -8,7 +8,7 @@ const rideSchema = new mongoose.Schema({
   },
   captain: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Captain",
+    ref: "captain",
   },
   pickup: {
     type: String,
@@ -50,7 +50,7 @@ const rideSchema = new mongoose.Schema({
   otp: {
     type: String,
     select: false,
-    required:true,
+    required: true,
   },
 });
 

@@ -1,4 +1,5 @@
 const axios = require("axios");
+const captainModel = require("../models/captain.model");
 
 const API_KEY = process.env.MAPS_API || "YOUR_HERE_API_KEY";
 
@@ -56,7 +57,7 @@ const getDistanceTime = async (origin, destination) => {
 
     const route = response.data.routes[0].sections[0].summary;
 
-    console.log("Route Summary:", route);
+    
 
     return {
       distance: (route.length / 1000).toFixed(2), // Convert meters to km
@@ -85,8 +86,23 @@ const getAutoCompleteSuggestions = async (input) => {
     );
   }
 };
+
+const getCaptainsInTheRadius = async (ltd, lng, radius) => {
+
+
+  const captains = await captainModel.find({
+    location: {
+      $geoWithin: {
+        $centerSphere: [[ltd, lng], radius / 6378.1],
+      },
+    },
+  });
+  return captains;
+
+};
 module.exports = {
   getAddressCoordinate,
   getDistanceTime,
   getAutoCompleteSuggestions,
+  getCaptainsInTheRadius,
 };

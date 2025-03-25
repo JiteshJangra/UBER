@@ -24,7 +24,6 @@ function initializeSocket(server) {
 
     // Handle user joining
     socket.on("join", async (data) => {
-      
       const { userId, userType } = data;
       try {
         if (userType === "user") {
@@ -32,15 +31,26 @@ function initializeSocket(server) {
         } else if (userType === "captain") {
           await captainModel.findByIdAndUpdate(userId, { socketId: socket.id });
         }
-        console.log(`Updated socket ID for ${userType}: ${userId} : ${socket.id}`);
+        // console.log(
+        //   `Updated socket ID for ${userType}: ${userId} : ${socket.id}`
+        // );
       } catch (error) {
         console.error("Error updating socket ID:", error);
       }
     });
 
-    // Handle errors
-    socket.on("connect_error", (err) => {
-      console.error("Socket connection error:", err.message);
+    socket.on("update-location-captain", async (data) => {
+      const { userId, location } = data;
+
+      if (!location || !location.ltd || !location.lng)
+        return socket.emit(`error `, { message: "invalid location data" });
+
+      await captainModel.findByIdAndUpdate(userId, {
+        location: {
+          ltd: location.ltd,
+          lng: location.lng,
+        },
+      });
     });
 
     // Handle disconnect
@@ -53,9 +63,10 @@ function initializeSocket(server) {
 }
 
 // Function to send a message to a specific socket ID
-const sendMessageToSocketId = (socketId, message) => {
+const sendMessageToSocketId = (socketId, messageObject) => {
+  console.log(`sending message to ${socketId}`, messageObject);
   if (io) {
-    io.to(socketId).emit("message", message);
+    io.to(socketId).emit(messageObject.event, messageObject.data);
   } else {
     console.log("Socket.io is not initialized.");
   }
