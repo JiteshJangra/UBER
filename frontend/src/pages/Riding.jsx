@@ -22,16 +22,20 @@ const Riding = () => {
       >
         <i className="text-lg font-medium ri-home-5-line" />
       </Link>
-      <div className="h-1/2 z-10000">
+      {/* <div className="h-1/2 z-10000">
         {/* <img
           className="h-full w-full object-cover"
           src="https://miro.medium.com/v2/resize:fit:1400/0*gwMx05pqII5hbfmX.gif"
           alt=""
-        /> */}
+        /> 
         <div className="h-1/2 w-full object-cover">
           <LiveTracking />
         </div>
+    </div> */}
+      <div className="h-1/2 w-full object-cover bg-red-500">
+        <LiveTracking />
       </div>
+
       <div className="h-1/2 p-4">
         <div className="flex items-center justify-between">
           <img

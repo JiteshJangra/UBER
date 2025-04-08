@@ -1,10 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 
-const HERE_API_KEY = `${import.meta.env.MAPS_API}`; // Replace with your HERE API Key
-const center = {
-  lat: -3.745,
-  lng: -38.523,
-};
+const HERE_API_KEY = `${import.meta.env.MAPS_API}`;
 
 const LiveTracking = () => {
   const mapRef = useRef(null);
@@ -13,36 +9,40 @@ const LiveTracking = () => {
   const [userMarker, setUserMarker] = useState(null);
 
   useEffect(() => {
-    if (!window.H || !window.H.service) {
-      const coreScript = document.createElement("script");
-      coreScript.src = "https://js.api.here.com/v3/3.1/mapsjs-core.js";
-      coreScript.async = true;
+    console.log("LiveTracking rendered", Math.random());
 
-      const serviceScript = document.createElement("script");
-      serviceScript.src = "https://js.api.here.com/v3/3.1/mapsjs-service.js";
-      serviceScript.async = true;
+    // Load HERE Maps Scripts Dynamically
+    const loadHereMapsScripts = async () => {
+      if (!window.H || !window.H.service) {
+        const scripts = [
+          "https://js.api.here.com/v3/3.1/mapsjs-core.js",
+          "https://js.api.here.com/v3/3.1/mapsjs-service.js",
+          "https://js.api.here.com/v3/3.1/mapsjs-mapevents.js",
+        ];
 
-      const eventsScript = document.createElement("script");
-      eventsScript.src = "https://js.api.here.com/v3/3.1/mapsjs-mapevents.js";
-      eventsScript.async = true;
+        for (let src of scripts) {
+          await new Promise((resolve) => {
+            const script = document.createElement("script");
+            script.src = src;
+            script.async = true;
+            script.onload = resolve;
+            document.body.appendChild(script);
+          });
+        }
+      }
+      initializeMap();
+    };
 
-      coreScript.onload = () => {
-        document.body.appendChild(serviceScript);
-      };
+    loadHereMapsScripts();
 
-      serviceScript.onload = () => {
-        document.body.appendChild(eventsScript);
-      };
-
-      eventsScript.onload = () => loadPlatform();
-
-      document.body.appendChild(coreScript);
-    } else {
-      loadPlatform();
-    }
+    return () => {
+      if (map) {
+        map.dispose(); // Cleanup map on unmount
+      }
+    };
   }, []);
 
-  const loadPlatform = () => {
+  const initializeMap = () => {
     const platform = new window.H.service.Platform({ apikey: HERE_API_KEY });
     const defaultLayers = platform.createDefaultLayers();
 
@@ -55,16 +55,18 @@ const LiveTracking = () => {
       }
     );
 
-    const behavior = new window.H.mapevents.Behavior(
-      new window.H.mapevents.MapEvents(mapInstance)
-    );
+    // Enable map interactivity
+    new window.H.mapevents.Behavior(new window.H.mapevents.MapEvents(mapInstance));
 
+    // Resize map when window size changes
+    window.addEventListener("resize", () => mapInstance.getViewPort().resize());
+
+    // Drag event to update current position
     mapInstance.addEventListener("dragend", () => {
       const newCenter = mapInstance.getCenter();
       setCurrentPosition({ lat: newCenter.lat, lng: newCenter.lng });
     });
 
-    window.addEventListener("resize", () => mapInstance.getViewPort().resize());
     setMap(mapInstance);
     trackUserLocation(mapInstance);
   };
@@ -78,13 +80,11 @@ const LiveTracking = () => {
         if (userMarker) {
           userMarker.setGeometry({ lat: latitude, lng: longitude });
         } else {
-          const newMarker = new window.H.map.Marker({
-            lat: latitude,
-            lng: longitude,
-          });
+          const newMarker = new window.H.map.Marker({ lat: latitude, lng: longitude });
           mapInstance.addObject(newMarker);
           setUserMarker(newMarker);
         }
+
         mapInstance.setCenter({ lat: latitude, lng: longitude });
       };
 
@@ -99,7 +99,15 @@ const LiveTracking = () => {
     }
   };
 
-  return <div ref={mapRef} style={{ width: "100%", height: "100%" }}></div>;
+  return (
+    <div className="w-full h-full flex justify-center items-center">
+      <div
+        ref={mapRef}
+        className="w-full h-full border rounded-lg shadow-md"
+        style={{ minHeight: "400px" }} // Ensure visible height
+      />
+    </div>
+  );
 };
 
 export default LiveTracking;
